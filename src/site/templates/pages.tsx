@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useSite } from '../context';
 import { useCatalogo } from '../../manageos/useCatalogo';
+import { useManageOS } from '../../manageos/useManageOS';
+import { formatearHorario } from '../../manageos/horario';
 import type { SectionComponent } from '../registry';
 import {
   Container,
@@ -92,10 +94,22 @@ function PageCta({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
-/** Datos de contacto reutilizados por Sobre nosotros, Contacto y Reserva. */
+/**
+ * Datos de contacto reutilizados por Sobre nosotros, Contacto y Reserva.
+ *
+ * El horario es el único de estos datos que Manager también gobierna una vez
+ * la web está conectada: mientras que dirección, teléfono y correo son cosas
+ * que el propio negocio escribe en su ficha de contenido, el horario es
+ * justo lo que decide si hay hueco que ofrecer, así que enseñarlo desde aquí
+ * sin mirar a Manager podía llevar a un horario de mentira que ya no
+ * coincidía con el de verdad. Sin conexión, se sigue enseñando el de la
+ * ficha —una web sin ManageOS detrás no tiene otro horario que mostrar—.
+ */
 function ContactDetails() {
   const { config, runCta } = useSite();
   const { business } = config;
+  const conexion = useManageOS();
+  const horario = conexion.estado === 'conectado' ? formatearHorario(conexion.datos.hours) : business.openingHours;
   return (
     <ul className="wf-contactlist">
       <li>
@@ -143,7 +157,7 @@ function ContactDetails() {
         <div>
           <strong>Horario</strong>
           <span>
-            {business.openingHours.map((entry) => `${entry.label}: ${entry.value}`).join(' · ')}
+            {horario.map((entry) => `${entry.label}: ${entry.value}`).join(' · ')}
           </span>
         </div>
       </li>

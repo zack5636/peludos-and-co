@@ -5,6 +5,8 @@ import type { SectionComponent } from '../registry';
 import { BeforeAfterSplit } from '../components/BeforeAfter';
 import { ReservaConectada } from '../../manageos/ReservaConectada';
 import { useCatalogo } from '../../manageos/useCatalogo';
+import { useManageOS } from '../../manageos/useManageOS';
+import { formatearHorario } from '../../manageos/horario';
 import { Carousel } from '../components/Carousel';
 import { BrandMark } from '../components/BrandMark';
 import { Icon } from '../components/Icon';
@@ -440,6 +442,9 @@ const Footer: SectionComponent = ({ section }) => {
   const { business, content, contact, navigation } = config;
   /* También aquí: un servicio archivado en Manager no puede seguir listado. */
   const { servicios } = useCatalogo(config.services);
+  /* Y el horario del pie es el mismo que el de Reserva: el de Manager si hay conexión. */
+  const conexion = useManageOS();
+  const horario = conexion.estado === 'conectado' ? formatearHorario(conexion.datos.hours) : business.openingHours;
   const year = new Date().getFullYear();
 
   return (
@@ -509,7 +514,7 @@ const Footer: SectionComponent = ({ section }) => {
         <div>
           <h3>Información</h3>
           <ul className="pco-footer__info">
-            {business.openingHours.map((entry) => (
+            {horario.map((entry) => (
               <li key={entry.label}>
                 <span>{entry.label}</span>
                 <strong>{entry.value}</strong>
