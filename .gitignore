@@ -3,3 +3,17 @@ dist
 .vite
 *.local
 *.tsbuildinfo
+
+# Secretos y variables de entorno
+.env
+.env.*
+!.env.example
+.vercel
+
+# Dumps y credenciales
+*.dump
+*.sql
+*.log
+*.pem
+*.key
+
