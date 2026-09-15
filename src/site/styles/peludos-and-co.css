@@ -786,7 +786,7 @@
 @media (max-width: 1260px) {
   .pco-nav { display: none; }
   .pco-burger { display: grid; }
-  .pco-header__inner { grid-template-columns: 1fr auto; }
+  .pco-header__inner { grid-template-columns: 1fr auto auto; }
 }
 
 @media (max-width: 1179px) {
@@ -817,7 +817,7 @@
   }
 
   .pco-header__inner {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
   }
 
   .pco-header__phone span {
@@ -922,5 +922,76 @@
 
   .pco-footer__grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Cabecera móvil: marca + menú en una fila, y las dos acciones (Mis citas /
+     Reservar cita) en una segunda fila a ancho completo, para que ninguna de
+     las dos quede cortada ni obligue a la marca a partirse en varias líneas. */
+  .pco-header__inner {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand burger'
+      'actions actions';
+    row-gap: 0.6rem;
+    column-gap: 0.6rem;
+    min-height: 0;
+    padding-block: 0.65rem;
+  }
+
+  .pco-brand {
+    grid-area: brand;
+    min-width: 0;
+  }
+
+  .pco-brand__mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+  }
+
+  .pco-brand__text {
+    min-width: 0;
+  }
+
+  .pco-brand__text strong {
+    font-size: 0.92rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pco-brand__text small {
+    display: none;
+  }
+
+  .pco-burger {
+    grid-area: burger;
+  }
+
+  .pco-header__actions {
+    grid-area: actions;
+    gap: 0.55rem;
+  }
+
+  .pco-header__actions .manageos-btn-account,
+  .pco-header__actions .wf-btn {
+    flex: 1 1 0;
+  }
+
+  .pco-header__actions .manageos-btn-account {
+    justify-content: center;
+    padding-inline: 0.6rem;
+  }
+
+  /* La cabecera ya tiene fila propia para las acciones, así que la etiqueta
+     del CTA ya no necesita colapsar a solo icono como en el resto de
+     templates (regla global de base.css para ≤400px). */
+  .pco-header__actions .wf-btn span:not(.wf-sr-only) {
+    display: inline !important;
+  }
+
+  .pco-header__actions .wf-btn {
+    min-width: 0;
+    padding-inline: 0.85rem;
   }
 }

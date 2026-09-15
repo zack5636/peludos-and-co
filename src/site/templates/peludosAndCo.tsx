@@ -91,17 +91,18 @@ const Header: SectionComponent = ({ section }) => {
             <span>{customer ? customer.name.split(' ')[0] : 'Mis citas'}</span>
           </button>
           <CtaButton cta={navigation.primaryCta} icon="calendar" size="sm" />
-          <button
-            type="button"
-            className="pco-burger"
-            ref={triggerRef}
-            aria-expanded={open}
-            aria-label="Abrir menú"
-            onClick={() => setOpen(true)}
-          >
-            <Icon name="menu" size={24} />
-          </button>
         </div>
+
+        <button
+          type="button"
+          className="pco-burger"
+          ref={triggerRef}
+          aria-expanded={open}
+          aria-label="Abrir menú"
+          onClick={() => setOpen(true)}
+        >
+          <Icon name="menu" size={24} />
+        </button>
       </Container>
 
       <MobileDrawer
