@@ -867,6 +867,14 @@
   .pco-hero__media {
     order: 2;
     min-height: 0;
+    /* Sin tope de altura: en móvil la foto ya no se estira a una altura fija
+       (ver `.pco-hero__photo`, `height:100%` no se resuelve porque el grid
+       usa `place-items:end center`, no `stretch`), así que se renderiza a su
+       alto natural. Si el marco mantuviera min(60vh,480px) como tope, esa
+       altura fija podía quedar por encima del alto real de la foto y dejar
+       un hueco vacío debajo — o por debajo y recortarla. Sin tope, el marco
+       se ajusta exactamente al contenido: la imagen se ve siempre completa. */
+    max-height: none;
     border-radius: var(--wf-radius-card);
   }
 
