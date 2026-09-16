@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal } from '../site/components/Modal';
 import { useCustomerAuth } from './useCustomerAuth';
 import { Icon } from '../site/components/Icon';
-import type { CitaCliente } from './cuentas';
+import { mintarEnlaceDeGestion, type CitaCliente } from './cuentas';
+import { GestionarCita } from './GestionarCita';
+import { ErrorDeManageOS } from './cliente';
 
 function formatearFecha(isoStr: string): string {
   const d = new Date(isoStr);
@@ -42,6 +44,7 @@ function EstadoBadge({ status }: { status: CitaCliente['status'] }) {
 export function MisCitas() {
   const {
     customer,
+    token,
     modalCitasAbierto,
     cerrarModalCitas,
     citas,
@@ -50,13 +53,34 @@ export function MisCitas() {
     logout,
   } = useCustomerAuth();
 
+  const [gestionToken, setGestionToken] = useState<string | null>(null);
+  const [mintando, setMintando] = useState<string | null>(null);
+  const [errorMint, setErrorMint] = useState<string | null>(null);
+
   useEffect(() => {
     if (modalCitasAbierto) {
       void refrescarCitas();
+    } else {
+      setGestionToken(null);
+      setErrorMint(null);
     }
   }, [modalCitasAbierto, refrescarCitas]);
 
   if (!customer) return null;
+
+  const abrirGestion = async (citaId: string) => {
+    if (!token) return;
+    setMintando(citaId);
+    setErrorMint(null);
+    try {
+      const nuevoToken = await mintarEnlaceDeGestion(token, citaId);
+      setGestionToken(nuevoToken);
+    } catch (fallo) {
+      setErrorMint(fallo instanceof ErrorDeManageOS ? fallo.message : 'No hemos podido abrir esta cita.');
+    } finally {
+      setMintando(null);
+    }
+  };
 
   return (
     <Modal
@@ -65,6 +89,13 @@ export function MisCitas() {
       title="Mis citas"
       size="md"
     >
+      {gestionToken ? (
+        <GestionarCita
+          manageToken={gestionToken}
+          onVolver={() => setGestionToken(null)}
+          onCambiada={() => { void refrescarCitas(); }}
+        />
+      ) : (
       <div className="manageos-citas-dialog">
         <div className="manageos-citas-header">
           <div className="manageos-user-info">
@@ -100,6 +131,8 @@ export function MisCitas() {
             </button>
           </div>
         </div>
+
+        {errorMint ? <p className="manageos-gestionar__error" role="alert">{errorMint}</p> : null}
 
         {cargandoCitas && citas.length === 0 ? (
           <div className="manageos-citas-loading">
@@ -181,12 +214,26 @@ export function MisCitas() {
                       </strong>
                     </div>
                   )}
+
+                  {cita.status === 'pending' || cita.status === 'confirmed' ? (
+                    <div className="manageos-cita-gestion">
+                      <button
+                        type="button"
+                        className="manageos-btn-account"
+                        onClick={() => void abrirGestion(cita.id)}
+                        disabled={mintando === cita.id}
+                      >
+                        {mintando === cita.id ? 'Abriendo…' : 'Cancelar o reprogramar'}
+                      </button>
+                    </div>
+                  ) : null}
                 </article>
               );
             })}
           </div>
         )}
       </div>
+      )}
     </Modal>
   );
 }

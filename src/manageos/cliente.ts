@@ -228,6 +228,58 @@ export function crearReserva(datos: DatosDeReserva, idempotencia: string, token?
 }
 
 /**
+ * Una cita vista por su dueño, a través del enlace de gestión.
+ *
+ * Lo que se puede hacer no se deduce aquí: lo dice el servidor (`canCancel`,
+ * `canReschedule`, `reason`), igual que en la reserva. Así esta web nunca
+ * inventa un permiso que el negocio no ha dado.
+ */
+export interface ReservaGestionable {
+  id: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+  startsAt: string;
+  serviceEndsAt: string;
+  timezone: string;
+  service: {
+    id: string; name: string; durationMinutes: number;
+    priceMinor: number | null; currency: string | null;
+  };
+  business: { name: string; address: string | null; phone: string | null };
+  clientName: string;
+  workerName: string | null;
+  deposit: {
+    status: 'pending' | 'paid' | 'waived' | 'refunded';
+    amountMinor: number; currency: string;
+  } | null;
+  canCancel: boolean;
+  canReschedule: boolean;
+  reason: 'open' | 'too_late' | 'not_allowed' | 'already_cancelled' | 'already_closed';
+  minHours: number;
+}
+
+/** La cita tal como está ahora mismo, buscada por el testigo de su enlace de gestión. */
+export function obtenerReservaPorToken(token: string): Promise<ReservaGestionable> {
+  return pedir<{ booking: ReservaGestionable }>(`/public/v1/bookings/${encodeURIComponent(token)}`)
+    .then((respuesta) => respuesta.booking);
+}
+
+/** Anula la cita. El servidor rechaza la llamada si `canCancel` ya era falso. */
+export function anularReservaPorToken(token: string, reason?: string): Promise<ReservaGestionable> {
+  return pedir<{ booking: ReservaGestionable }>(`/public/v1/bookings/${encodeURIComponent(token)}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify(reason ? { reason } : {}),
+  }).then((respuesta) => respuesta.booking);
+}
+
+/** Cambia la cita a otra hora, siempre una que el propio motor de Manager ofrezca como libre. */
+export function moverReservaPorToken(token: string, startsAt: string): Promise<ReservaGestionable> {
+  return pedir<{ booking: ReservaGestionable }>(`/public/v1/bookings/${encodeURIComponent(token)}/reschedule`, {
+    method: 'POST',
+    body: JSON.stringify({ startsAt }),
+  }).then((respuesta) => respuesta.booking);
+}
+
+/**
  * El exponente real de una moneda.
  *
  * Casi todas usan 2 decimales (cien céntimos), pero el peso chileno y el

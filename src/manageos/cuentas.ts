@@ -143,3 +143,20 @@ export async function obtenerMisCitasCliente(token: string): Promise<CitaCliente
   );
   return respuesta.items;
 }
+
+/**
+ * Un enlace de gestión recién acuñado para una cita concreta.
+ *
+ * El testigo original nunca se guarda en claro, así que no se puede "recuperar":
+ * cada vez que el cliente quiere gestionar una cita desde su cuenta se emite uno
+ * nuevo, que invalida el anterior. Es el mismo mecanismo que un enlace de
+ * restablecer contraseña.
+ */
+export async function mintarEnlaceDeGestion(token: string, appointmentId: string): Promise<string> {
+  const respuesta = await pedirCuenta<{ manageToken: string }>(
+    `/public/v1/account/appointments/${appointmentId}/manage-link`,
+    { method: 'POST' },
+    token,
+  );
+  return respuesta.manageToken;
+}

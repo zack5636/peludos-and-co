@@ -63,7 +63,7 @@ function servicioParaPaquete(
   ));
 }
 
-type Paso = 'servicio' | 'tamano' | 'dia' | 'hora' | 'datos' | 'hecho';
+type Paso = 'servicio' | 'tamano' | 'dia' | 'hora' | 'datos' | 'consulta' | 'hecho';
 type NivelDelDia = 'libre' | 'ocupado' | 'completo';
 
 const DIAS_CORTOS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -146,7 +146,7 @@ export function ReservaManageOS({ estado, whatsapp, servicioInicial, paqueteInic
     claveAnterior.current = clave;
     const entrar = (encontrado: ServicioPublico) => {
       setServicioId(encontrado.id); setSizeId(''); setFecha(''); setInicio('');
-      setPaso(encontrado.sizeTiers.length > 0 ? 'tamano' : 'dia');
+      setPaso(encontrado.priceMode === 'on_request' ? 'consulta' : encontrado.sizeTiers.length > 0 ? 'tamano' : 'dia');
     };
     if (servicioInicial) {
       const encontrado = estado.services.find((entrada) => entrada.id === servicioInicial);
@@ -301,6 +301,7 @@ export function ReservaManageOS({ estado, whatsapp, servicioInicial, paqueteInic
   const elegirServicio = (id: string) => {
     const elegido = servicios.find((entrada) => entrada.id === id);
     setServicioId(id); setSizeId(''); setFecha(''); setInicio(''); setAviso(null);
+    if (elegido?.priceMode === 'on_request') { setPaso('consulta'); return; }
     setPaso(elegido && elegido.sizeTiers.length > 0 ? 'tamano' : 'dia');
   };
 
@@ -439,22 +440,24 @@ export function ReservaManageOS({ estado, whatsapp, servicioInicial, paqueteInic
 
   return (
     <div className="pco-reserva">
-      <ol className="pco-reserva__pasos" aria-label="Pasos de la reserva">
-        {(requiereTamano
-          ? (['servicio', 'tamano', 'dia', 'hora', 'datos'] satisfies Paso[])
-          : (['servicio', 'dia', 'hora', 'datos'] satisfies Paso[])
-        ).map((clave, indice, orden: Paso[]) => {
-          const actual = orden.indexOf(paso);
-          const estadoPaso = indice < actual ? 'hecho' : indice === actual ? 'actual' : 'pendiente';
-          const etiquetas: Record<Paso, string> = { servicio: 'Servicio', tamano: 'Tamaño', dia: 'Día', hora: 'Hora', datos: 'Tus datos', hecho: 'Hecho' };
-          return (
-            <li key={clave} className={`pco-reserva__paso pco-reserva__paso--${estadoPaso}`}>
-              <span className="pco-reserva__num">{indice < actual ? <Icon name="check" size={13} /> : indice + 1}</span>
-              <span>{etiquetas[clave]}</span>
-            </li>
-          );
-        })}
-      </ol>
+      {paso !== 'consulta' ? (
+        <ol className="pco-reserva__pasos" aria-label="Pasos de la reserva">
+          {(requiereTamano
+            ? (['servicio', 'tamano', 'dia', 'hora', 'datos'] satisfies Paso[])
+            : (['servicio', 'dia', 'hora', 'datos'] satisfies Paso[])
+          ).map((clave, indice, orden: Paso[]) => {
+            const actual = orden.indexOf(paso);
+            const estadoPaso = indice < actual ? 'hecho' : indice === actual ? 'actual' : 'pendiente';
+            const etiquetas: Record<Paso, string> = { servicio: 'Servicio', tamano: 'Tamaño', dia: 'Día', hora: 'Hora', datos: 'Tus datos', consulta: 'Contacto', hecho: 'Hecho' };
+            return (
+              <li key={clave} className={`pco-reserva__paso pco-reserva__paso--${estadoPaso}`}>
+                <span className="pco-reserva__num">{indice < actual ? <Icon name="check" size={13} /> : indice + 1}</span>
+                <span>{etiquetas[clave]}</span>
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
 
       {aviso ? <p className="pco-reserva__aviso" role="status">{aviso}</p> : null}
 
@@ -485,7 +488,9 @@ export function ReservaManageOS({ estado, whatsapp, servicioInicial, paqueteInic
                   ) : (
                     <>
                       {entrada.durationMinutes} min
-                      {precioLegible(entrada) ? <> · {precioLegible(entrada)}</> : null}
+                      {entrada.priceMode === 'on_request'
+                        ? <> · A consultar</>
+                        : precioLegible(entrada) ? <> · {precioLegible(entrada)}</> : null}
                     </>
                   )}
                 </span>
@@ -589,7 +594,42 @@ export function ReservaManageOS({ estado, whatsapp, servicioInicial, paqueteInic
         </form>
       ) : null}
 
-      {whatsapp ? (
+      {paso === 'consulta' && servicio ? (
+        <div className="pco-reserva__consulta">
+          <button type="button" className="pco-reserva__volver" onClick={() => setPaso('servicio')}>
+            <Icon name="arrowLeft" size={16} /> {servicio.name}
+          </button>
+          <h3>Este servicio es a consultar</h3>
+          <p className="pco-reserva__consulta-texto">
+            El precio y la duración dependen de tu caso, así que este servicio no se reserva
+            directamente por aquí. Cuéntanos qué necesita tu peludo y te confirmamos disponibilidad y precio.
+          </p>
+          <div className="pco-reserva__consulta-acciones">
+            {whatsapp ? (
+              <a
+                className="manageos-btn-primary"
+                href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Escribir por WhatsApp
+              </a>
+            ) : null}
+            {estado.business.contactPhone ? (
+              <a className="manageos-btn-account" href={`tel:${estado.business.contactPhone}`}>
+                Llamar al {estado.business.contactPhone}
+              </a>
+            ) : null}
+            {estado.business.contactEmail ? (
+              <a className="manageos-btn-account" href={`mailto:${estado.business.contactEmail}`}>
+                Escribir un correo
+              </a>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {whatsapp && paso !== 'consulta' ? (
         <div className="pco-reserva__ayuda">
           <button
             type="button"

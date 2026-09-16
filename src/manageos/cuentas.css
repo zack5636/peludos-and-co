@@ -367,6 +367,153 @@
   color: var(--wf-text, #111827);
 }
 
+.manageos-cita-gestion {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px dashed var(--wf-border, #e5e7eb);
+  padding-top: 0.6rem;
+}
+
+/* --------------------------------------------------------- Gestionar cita */
+
+.manageos-gestionar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.manageos-gestionar__volver {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--wf-brand-primary, #7c3aed);
+  cursor: pointer;
+}
+
+.manageos-gestionar__servicio {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--wf-text, #111827);
+}
+
+.manageos-gestionar__fecha {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--wf-text-muted, #6b7280);
+}
+
+.manageos-gestionar__datos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1rem;
+  margin: 0;
+  padding: 0.85rem;
+  border-radius: var(--wf-radius-card, 0.65rem);
+  border: 1.5px solid var(--wf-border, #e5e7eb);
+  background: var(--wf-bg-alt, #f9fafb);
+}
+
+.manageos-gestionar__datos dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--wf-text-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.manageos-gestionar__datos dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--wf-text, #111827);
+}
+
+.manageos-gestionar__error {
+  padding: 0.75rem 1rem;
+  border-radius: var(--wf-radius-sm, 0.5rem);
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+}
+
+.manageos-gestionar__nota {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--wf-text-muted, #6b7280);
+}
+
+.manageos-gestionar__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.manageos-gestionar__confirmar,
+.manageos-gestionar__mover {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.manageos-gestionar__mover h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--wf-text, #111827);
+}
+
+.manageos-gestionar__dia {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--wf-text, #111827);
+}
+
+.manageos-gestionar__dia input {
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  border: 1.5px solid var(--wf-border, #d1d5db);
+  border-radius: var(--wf-radius-sm, 0.5rem);
+  background: var(--wf-surface, #ffffff);
+  color: var(--wf-text, #111827);
+}
+
+.manageos-gestionar__horas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.manageos-hora-chip {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  border: 1.5px solid var(--wf-border, #d1d5db);
+  background: var(--wf-surface, #ffffff);
+  color: var(--wf-text, #111827);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.manageos-hora-chip:hover {
+  border-color: var(--wf-brand-primary, #7c3aed);
+}
+
+.manageos-hora-chip.is-active {
+  border-color: var(--wf-brand-primary, #7c3aed);
+  background: var(--wf-brand-primary, #7c3aed);
+  color: #ffffff;
+}
+
 /* Botón de cuenta en el header */
 .manageos-btn-account {
   display: inline-flex;
