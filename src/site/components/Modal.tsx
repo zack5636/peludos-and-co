@@ -27,15 +27,23 @@ export function Modal({
   const closeTimerRef = useRef<number | null>(null);
   const [closing, setClosing] = useState(false);
 
+  // `onClose` suele llegar como función nueva en cada render (p. ej. `() => setX(null)`).
+  // Si `requestClose` dependiera de ella, el efecto de foco de abajo se volvería a ejecutar
+  // con cada tecla que redibuja al padre y mandaría el foco al botón de cerrar.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   const requestClose = useCallback(() => {
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
     setClosing(true);
-    onClose();
+    onCloseRef.current();
     closeTimerRef.current = window.setTimeout(() => {
       closeTimerRef.current = null;
       setClosing(false);
     }, 320);
-  }, [onClose]);
+  }, []);
 
   useEffect(() => () => {
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
